@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Operasi Vektor Grafis – Poligon & Jajargenjang</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#0b1220; --ink:#e5e7eb; --muted:#94a3b8; --accent:#22d3ee;
+    --red:#ef4444; --green:#22c55e; --blue:#3b82f6; --dash:#64748b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial;
+       color:var(--ink);background:linear-gradient(180deg,#0b1220,#0f172a);}
+  header{padding:24px 16px;text-align:center;border-bottom:1px solid #1f2937}
+  h1{margin:.2rem 0;font-weight:800;letter-spacing:.2px}
+  .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{padding:10px 14px;border:1px solid #1f2937;border-radius:10px;background:#0b1220;
+       color:var(--muted);cursor:pointer}
+  .tab.active{color:#0b1220;background:var(--accent);border-color:transparent;font-weight:700}
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:18px;margin-top:16px}
+  .card{background:var(--card);border:1px solid #1f2937;border-radius:14px;padding:16px}
+  h2{margin:.2rem 0 .6rem;font-size:1.1rem}
+  details{border:1px dashed #334155;border-radius:10px;padding:10px;margin:8px 0;background:#0b1228}
+  details[open]{background:#0c1b2e}
+  label{display:block;margin:.3rem 0;color:var(--muted);font-size:.92rem}
+  input{width:100%;padding:10px;border-radius:10px;border:1px solid #1f2937;background:#0a0f1c;color:var(--ink)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  canvas{width:100%;height:520px;background:#0a0f1c;border:1px solid #1f2937;border-radius:14px}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  button{padding:10px 12px;border-radius:10px;border:1px solid #1f2937;background:#0c1220;color:var(--ink);cursor:pointer}
+  button.primary{background:var(--accent);color:#062529;border:0;font-weight:700}
+  .muted{color:var(--muted)}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
+  .chip{background:#0a0f1c;border:1px solid #1f2937;border-radius:12px;padding:10px;text-align:center}
+  code{background:#0a0f1c;border:1px solid #1f2937;padding:2px 6px;border-radius:6px}
+  footer{opacity:.7;text-align:center;padding:24px 8px}
+  @media (max-width:980px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Operasi Vektor Secara Grafis</h1>
+  <div class="muted">Metode Poligon &amp; Metode Jajargenjang – interaktif untuk LKPD</div>
+</header>
+
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="poly">Metode Poligon</button>
+    <button class="tab" data-tab="para">Metode Jajargenjang</button>
+  </div>
+
+  <!-- POLIGON -->
+  <section id="poly" class="grid">
+    <div class="card">
+      <h2>Orientasi Masalah</h2>
+      <details open>
+        <summary><strong>Kasus:</strong> Resultan perpindahan tiga lintasan</summary>
+        <p class="muted">
+          Sebuah robot bergerak pada bidang datar: pertama maju, lalu serong, dan terakhir turun.
+          Tentukan arah & besar <em>perpindahan total</em> secara grafis dengan menyusun vektor
+          <b>ujung ke pangkal</b>.
+        </p>
+      </details>
+
+      <h2>Input Vektor (besar & sudut)</h2>
+      <div class="row">
+        <div>
+          <label>A – besar</label><input id="pa" type="number" step="0.1" value="4">
+        </div>
+        <div>
+          <label>A – sudut (°)</label><input id="ta" type="number" step="1" value="0">
+        </div>
+      </div>
+      <div class="row">
+        <div><label>B – besar</label><input id="pb" type="number" step="0.1" value="3"></div>
+        <div><label>B – sudut (°)</label><input id="tb" type="number" step="1" value="-45"></div>
+      </div>
+      <div class="row">
+        <div><label>C – besar</label><input id="pc" type="number" step="0.1" value="2"></div>
+        <div><label>C – sudut (°)</label><input id="tc" type="number" step="1" value="-90"></div>
+      </div>
+      <div class="btns">
+        <button class="primary" id="draw-poly">Gambar & Hitung</button>
+        <button id="reset-poly">Reset</button>
+        <button id="sample-poly">Contoh Otomatis</button>
+      </div>
+
+      <h2>Hasil</h2>
+      <div class="kpi">
+        <div class="chip"><div class="muted">R<sub>x</sub></div><div id="rxp">–</div></div>
+        <div class="chip"><div class="muted">R<sub>y</sub></div><div id="ryp">–</div></div>
+        <div class="chip"><div class="muted">|R|</div><div id="rmp">–</div></div>
+        <div class="chip"><div class="muted">θ (°)</div><div id="rtp">–</div></div>
+      </div>
+      <p class="muted" style="margin-top:8px">Catatan: 0° ke kanan, sudut positif berlawanan arah jarum jam (CCW).</p>
+    </div>
+
+    <div class="card">
+      <h2>Gambar – Metode Poligon</h2>
+      <canvas id="canvas-poly" width="800" height="520"></canvas>
+    </div>
+  </section>
+
+  <!-- JAJARGENJANG -->
+  <section id="para" class="grid" style="display:none">
+    <div class="card">
+      <h2>Orientasi Masalah</h2>
+      <details open>
+        <summary><strong>Kasus:</strong> Dua gaya menarik benda dari satu titik</summary>
+        <p class="muted">
+          Sebuah kotak ditarik dua tali: satu ke arah timur-laut, satu lagi ke timur-tenggara.
+          Tentukan resultan gaya secara grafis dengan <b>metode jajargenjang</b>.
+        </p>
+      </details>
+
+      <h2>Input Vektor (besar & sudut)</h2>
+      <div class="row">
+        <div><label>A – besar</label><input id="qa" type="number" step="0.1" value="5"></div>
+        <div><label>A – sudut (°)</label><input id="ua" type="number" step="1" value="45"></div>
+      </div>
+      <div class="row">
+        <div><label>B – besar</label><input id="qb" type="number" step="0.1" value="5"></div>
+        <div><label>B – sudut (°)</label><input id="ub" type="number" step="1" value="-30"></div>
+      </div>
+      <div class="btns">
+        <button class="primary" id="draw-para">Gambar & Hitung</button>
+        <button id="reset-para">Reset</button>
+        <button id="sample-para">Contoh Otomatis</button>
+      </div>
+
+      <h2>Hasil</h2>
+      <div class="kpi">
+        <div class="chip"><div class="muted">R<sub>x</sub></div><div id="rxq">–</div></div>
+        <div class="chip"><div class="muted">R<sub>y</sub></div><div id="ryq">–</div></div>
+        <div class="chip"><div class="muted">|R|</div><div id="rmq">–</div></div>
+        <div class="chip"><div class="muted">θ (°)</div><div id="rtq">–</div></div>
+      </div>
+      <p class="muted" style="margin-top:8px">
+        Tips: diagonal jajargenjang dari pangkal bersama adalah resultan \(\vec R = \vec A + \vec B\).
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Gambar – Metode Jajargenjang</h2>
+      <canvas id="canvas-para" width="800" height="520"></canvas>
+    </div>
+  </section>
+
+  <footer class="muted">
+    © LKPD Interaktif – Operasi Vektor Grafis. Sudut 0° ke kanan, CCW positif.
+  </footer>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const toRad = d => d*Math.PI/180;
+const round = (x,n=2)=>Number(x.toFixed(n));
+
+function comp(mag,deg){
+  const th = toRad(deg);
+  return {x: mag*Math.cos(th), y: mag*Math.sin(th)};
+}
+function sumVec(arr){
+  return arr.reduce((acc,v)=>({x:acc.x+v.x,y:acc.y+v.y}),{x:0,y:0});
+}
+function mag(v){ return Math.hypot(v.x,v.y); }
+function ang(v){ return (Math.atan2(v.y,v.x)*180/Math.PI); }
+
+/* drawing */
+function makeDraw(ctx, w, h){
+  const cx = w/2, cy = h/2, scale = 30; // 1 unit = 30 px (ubah bila perlu)
+  ctx.clearRect(0,0,w,h);
+  // grid ringan
+  ctx.strokeStyle = "#1f2937"; ctx.lineWidth=1;
+  for(let x=0;x<w;x+=30){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+  for(let y=0;y<h;y+=30){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+  // axes
+  ctx.strokeStyle="#334155"; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(w,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,h); ctx.stroke();
+
+  function drawArrow(x1,y1,x2,y2,color,thick=3){
+    ctx.strokeStyle=color; ctx.lineWidth=thick;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    // arrow head
+    const ang = Math.atan2(y2-y1, x2-x1);
+    const ah = 10, aw = 6;
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-ah*Math.cos(ang)-aw*Math.sin(ang), y2-ah*Math.sin(ang)+aw*Math.cos(ang));
+    ctx.lineTo(x2-ah*Math.cos(ang)+aw*Math.sin(ang), y2-ah*Math.sin(ang)-aw*Math.cos(ang));
+    ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+  }
+  function pt(px,py){ return {X: cx+px*scale, Y: cy-py*scale}; } // math->canvas
+
+  return {pt,drawArrow,scale,cx,cy};
+}
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('#tabs .tab').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#tabs .tab').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const tab = b.dataset.tab;
+    document.getElementById('poly').style.display = tab==='poly'?'grid':'none';
+    document.getElementById('para').style.display = tab==='para'?'grid':'none';
+  });
+});
+
+/* ---------- Polygon ---------- */
+function drawPolygon(){
+  const A = Number(document.getElementById('pa').value||0);
+  const B = Number(document.getElementById('pb').value||0);
+  const C = Number(document.getElementById('pc').value||0);
+  const a = Number(document.getElementById('ta').value||0);
+  const b = Number(document.getElementById('tb').value||0);
+  const c = Number(document.getElementById('tc').value||0);
+
+  const va = comp(A,a), vb = comp(B,b), vc = comp(C,c);
+  const R  = sumVec([va,vb,vc]);
+
+  const canvas = document.getElementById('canvas-poly');
+  const ctx = canvas.getContext('2d');
+  const d = makeDraw(ctx, canvas.width, canvas.height);
+
+  // chain: start at origin (0,0)
+  const O = d.pt(0,0);
+  const Aend = d.pt(va.x, va.y);
+  const Bend = d.pt(va.x+vb.x, va.y+vb.y);
+  const Cend = d.pt(R.x, R.y);
+
+  d.drawArrow(O.X,O.Y, Aend.X,Aend.Y, getComputedStyle(document.documentElement).getPropertyValue('--red').trim());
+  d.drawArrow(Aend.X,Aend.Y, Bend.X,Bend.Y, getComputedStyle(document.documentElement).getPropertyValue('--blue').trim());
+  d.drawArrow(Bend.X,Bend.Y, Cend.X,Cend.Y, getComputedStyle(document.documentElement).getPropertyValue('--green').trim());
+
+  // result dashed
+  ctx.setLineDash([8,6]); d.drawArrow(O.X,O.Y, Cend.X,Cend.Y, "#94a3b8", 3); ctx.setLineDash([]);
+
+  // numbers
+  document.getElementById('rxp').textContent = round(R.x);
+  document.getElementById('ryp').textContent = round(R.y);
+  document.getElementById('rmp').textContent = round(mag(R));
+  document.getElementById('rtp').textContent = round(ang(R));
+}
+document.getElementById('draw-poly').onclick = drawPolygon;
+document.getElementById('reset-poly').onclick = ()=>{
+  ['pa','pb','pc','ta','tb','tc'].forEach(id=>document.getElementById(id).value='');
+  const ctx = document.getElementById('canvas-poly').getContext('2d');
+  makeDraw(ctx, 800, 520);
+  ['rxp','ryp','rmp','rtp'].forEach(id=>document.getElementById(id).textContent='–');
+};
+document.getElementById('sample-poly').onclick = ()=>{
+  document.getElementById('pa').value=4; document.getElementById('ta').value=0;
+  document.getElementById('pb').value=3; document.getElementById('tb').value=-45;
+  document.getElementById('pc').value=2; document.getElementById('tc').value=-90;
+  drawPolygon();
+};
+
+/* ---------- Parallelogram ---------- */
+function drawParallelogram(){
+  const A = Number(document.getElementById('qa').value||0);
+  const B = Number(document.getElementById('qb').value||0);
+  const a = Number(document.getElementById('ua').value||0);
+  const b = Number(document.getElementById('ub').value||0);
+
+  const va = comp(A,a), vb = comp(B,b);
+  const R  = sumVec([va,vb]);
+
+  const canvas = document.getElementById('canvas-para');
+  const ctx = canvas.getContext('2d');
+  const d = makeDraw(ctx, canvas.width, canvas.height);
+
+  const O = d.pt(0,0);
+  const Aend = d.pt(va.x, va.y);
+  const Bend = d.pt(vb.x, vb.y);
+  // draw A and B from origin
+  d.drawArrow(O.X,O.Y, Aend.X,Aend.Y, getComputedStyle(document.documentElement).getPropertyValue('--red').trim());
+  d.drawArrow(O.X,O.Y, Bend.X,Bend.Y, getComputedStyle(document.documentElement).getPropertyValue('--blue').trim());
+
+  // construct parallelogram (dashed)
+  ctx.setLineDash([6,6]); ctx.strokeStyle = "#64748b"; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(Aend.X,Aend.Y); ctx.lineTo(Aend.X+(Bend.X-O.X), Aend.Y+(Bend.Y-O.Y)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(Bend.X,Bend.Y); ctx.lineTo(Bend.X+(Aend.X-O.X), Bend.Y+(Aend.Y-O.Y)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // result from origin to A+B
+  const Rend = d.pt(R.x, R.y);
+  d.drawArrow(O.X,O.Y, Rend.X,Rend.Y, "#22d3ee", 3);
+
+  document.getElementById('rxq').textContent = round(R.x);
+  document.getElementById('ryq').textContent = round(R.y);
+  document.getElementById('rmq').textContent = round(mag(R));
+  document.getElementById('rtq').textContent = round(ang(R));
+}
+document.getElementById('draw-para').onclick = drawParallelogram;
+document.getElementById('reset-para').onclick = ()=>{
+  ['qa','qb','ua','ub'].forEach(id=>document.getElementById(id).value='');
+  const ctx = document.getElementById('canvas-para').getContext('2d');
+  makeDraw(ctx, 800, 520);
+  ['rxq','ryq','rmq','rtq'].forEach(id=>document.getElementById(id).textContent='–');
+};
+document.getElementById('sample-para').onclick = ()=>{
+  document.getElementById('qa').value=5; document.getElementById('ua').value=45;
+  document.getElementById('qb').value=5; document.getElementById('ub').value=-30;
+  drawParallelogram();
+};
+
+/* initial paint */
+makeDraw(document.getElementById('canvas-poly').getContext('2d'), 800, 520);
+makeDraw(document.getElementById('canvas-para').getContext('2d'), 800, 520);
+</script>
+</body>
+</html>
